@@ -4,11 +4,9 @@ async function main() {
     const perdafosFactory = await hre.ethers.getContractFactory("Perdafos");
     const perdafos = await perdafosFactory.attach("0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9");
 
-    const pemilik = await perdafos.getPemilik()
-    const textRaw = await perdafos.textRaw()
+    const textRaw = await perdafos.setText("Dafa Ghaitsa")
 
     await perdafos.waitForDeployment();
-    console.log("perdafos deployed to:", perdafos.target);
     console.log(`text = ${textRaw}`)
 }
 
