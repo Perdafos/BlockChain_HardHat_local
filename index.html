@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
+            rel="stylesheet"
+        />
+        <title>Wallet</title>
+    </head>
+    <body class="bg-gray-100 min-h-screen flex items-center justify-center">
+        <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
+            <h1 id="welcome" class="text-2xl font-bold mb-6 text-blue-700">Hello,</h1>
+            <div class="space-y-4 mb-6">
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold text-gray-700">Pemilik:</span>
+                    <span id="pemilik" class="text-gray-900"></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold text-gray-700">Raw Text:</span>
+                    <span id="rawText" class="text-gray-900"></span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="font-semibold text-gray-700">Angka:</span>
+                    <span id="angka" class="text-gray-900"></span>
+                </div>
+            </div>
+            <hr class="mb-6" />
+            <div class="mb-4 flex space-x-2">
+                <input
+                    type="text"
+                    id="textRaw"
+                    placeholder="Text raw"
+                    class="flex-1 px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                />
+                <button
+                    onclick="setText()"
+                    class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                >
+                    Set Text
+                </button>
+            </div>
+            <div class="flex space-x-2 mb-6">
+                <button
+                    onclick="inc()"
+                    class="flex-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                >
+                    Increment
+                </button>
+                <button
+                    onclick="loadData()"
+                    class="flex-1 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition"
+                >
+                    Load Data
+                </button>
+            </div>
+            <div id="wallet" class="flex justify-center">
+                <button
+                    class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition font-semibold"
+                    onclick="connect()"
+                >
+                    Connect Wallet
+                </button>
+            </div>
+        </div>
+        <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+        <script src="abi.js"></script>
+        <script>
+            let provider;
+            let account;
+            let perdafosContract;
+
+            async function connect() {
+                await ethereum.request({ method: "eth_requestAccounts" });
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                account = await provider.getSigner().getAddress();
+                document.getElementById("welcome").innerText = "Hello, " + account;
+                document.getElementById("wallet").classList.add("invisible");
+                perdafosContract = new ethers.Contract(
+                    "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
+                    abi,
+                    provider
+                );
+                await loadData();
+            }
+
+            async function setText() {
+                const textValue = document.getElementById("textRaw").value;
+                const perdafos = perdafosContract.connect(await provider.getSigner());
+                await perdafos.setText(textValue);
+                await loadData();
+            }
+
+            async function inc() {
+                const perdafos = perdafosContract.connect(await provider.getSigner());
+                await perdafos.inc();
+                await loadData();
+            }
+
+            async function loadData() {
+                document.getElementById("pemilik").innerText = await perdafosContract.getPemilik();
+                document.getElementById("rawText").innerText = await perdafosContract.textRaw();
+                document.getElementById("angka").innerText = await perdafosContract.angka();
+            }
+            window.addEventListener("load", async () => {});
+        </script>
+    </body>
+</html>
